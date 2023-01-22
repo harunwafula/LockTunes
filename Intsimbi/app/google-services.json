@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "618876529438",
+    "project_id": "locktunes",
+    "storage_bucket": "locktunes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618876529438:android:ac18926b382da30685370f",
+        "android_client_info": {
+          "package_name": "com.astrofittechnologies.intsimbi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "618876529438-6pcfa2siufrnlisgcvrf4nq095fqk5mg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATZcRUr9IliMCgktT7klWoh1tbl_uPVcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "618876529438-6pcfa2siufrnlisgcvrf4nq095fqk5mg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
