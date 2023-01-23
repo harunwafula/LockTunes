@@ -11,13 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.astrofittechnologies.intsimbi.models.Song;
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TrackListAdapter  extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
-    private final List<String> songs;
+    private final List<Song> songs;
     private TrackListAdapter.OnClickListener onClickListener;
+    private Context context;
 
     public interface OnClickListener {
          void onSongPick(View view, int position);
@@ -54,8 +58,12 @@ public class TrackListAdapter  extends RecyclerView.Adapter<TrackListAdapter.Vie
 
         public ImageView getSongDp() {return  songDp;}
 
-        public void bind(final String song, final TrackListAdapter.OnClickListener listener, int position) {
-            getSongName().setText(song);
+        public void bind(final Song song, final TrackListAdapter.OnClickListener listener, int position, Context context) {
+            getSongName().setText(song.getName());
+            getSongArtist().setText(song.getArtist());
+            ImageView songDp = getSongDp();
+            Glide.with(context).load("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/Rectangle%202.png?alt=media&token=4ecfd37e-da85-48e4-b814-5d171f1ffd09").into(songDp);
+
 
 //            String photoUrl = item.getDisplayImage();
 //
@@ -72,8 +80,9 @@ public class TrackListAdapter  extends RecyclerView.Adapter<TrackListAdapter.Vie
     }
 
 
-    public TrackListAdapter(List<String> songs) {
+    public TrackListAdapter(List<Song> songs, Context context) {
         this.songs = songs;
+        this.context = context;
 
     }
 
@@ -94,7 +103,7 @@ public class TrackListAdapter  extends RecyclerView.Adapter<TrackListAdapter.Vie
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.bind(songs.get(position), onClickListener, position);
+        viewHolder.bind(songs.get(position), onClickListener, position, this.context);
 
 
     }
@@ -105,9 +114,9 @@ public class TrackListAdapter  extends RecyclerView.Adapter<TrackListAdapter.Vie
         return songs.size();
     }
 
-    public void newData(String name){
+    public void newData(Song song){
 
-        songs.add(name);
+        songs.add(song);
         notifyDataSetChanged();
     }
 
@@ -119,9 +128,9 @@ public class TrackListAdapter  extends RecyclerView.Adapter<TrackListAdapter.Vie
         notifyDataSetChanged();
     }
 
-    public List<String> getSongs() {
+    public List<Song> getSongs() {
 
-        List<String> songs = new ArrayList<>();
+        List<Song> songs = new ArrayList<>();
         songs.addAll(this.songs);
         return songs;
     }

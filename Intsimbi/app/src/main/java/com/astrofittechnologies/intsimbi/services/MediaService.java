@@ -7,26 +7,35 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.astrofittechnologies.intsimbi.R;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.internal.Objects;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-public class MediaService extends Service implements MediaPlayer.OnPreparedListener {
+public class MediaService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     // Static variable reference of single_instance
     // of type Singleton
     private static MediaService single_instance = null;
 
-    // Declaring a variable of type String
     public MediaPlayer mediaPlayer;
     private Boolean isPaused = true;
     private Context context;
     private Boolean isAwake = false;
+
+
+    private ImageView playPause;
+    private ImageView currSongDp;
+    private TextView currSongName;
 
     // Constructor
     // Here we will be creating private constructor
@@ -54,6 +63,12 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void streamSong(String url) throws IOException {
+
+        playPause.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
+        Glide.with(context)
+                .load("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/Rectangle%202.png?alt=media&token=4ecfd37e-da85-48e4-b814-5d171f1ffd09")
+                .into(currSongDp);
+        //if the media was already playing or it has been paused
         if(mediaPlayer.isPlaying() || isPaused ){
             mediaPlayer.reset();
 
@@ -68,10 +83,10 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         mediaPlayer.setDataSource(url);
         mediaPlayer.prepare(); // might take long! (for buffering, etc)
         mediaPlayer.start();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-           String test =  Arrays.stream(mediaPlayer.getTrackInfo()).toArray().toString();
-            Toast.makeText(this.context, test, Toast.LENGTH_SHORT).show();
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//           String test =  Arrays.stream(mediaPlayer.getTrackInfo()).toArray().toString();
+//            Toast.makeText(this.context, test, Toast.LENGTH_SHORT).show();
+//        }
         isAwake = true;
 
 
@@ -95,7 +110,27 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
+    public Boolean getIsPlaying(){
+        return mediaPlayer.isPlaying();
+    }
+
     public Boolean getAwake() {
         return isAwake;
+    }
+
+    public void setController(ConstraintLayout layout){
+        playPause = layout.findViewById(R.id.play_toggle);
+        currSongDp = layout.findViewById(R.id.song_dp_img);
+        currSongName = layout.findViewById(R.id.song_name_txt);
+    }
+
+    public void setCurrSong (String name, String songDpUrl) {
+        currSongName.setText(name);
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        playPause.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
+
     }
 }

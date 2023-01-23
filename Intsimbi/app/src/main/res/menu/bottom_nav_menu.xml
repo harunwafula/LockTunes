@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/locked"
+        android:title="Locked"
+        android:icon="@drawable/ic_baseline_lock_24"/>
+
+    <item android:id="@+id/unlocked"
+        android:title="Unlocked"
+        android:icon="@drawable/ic_baseline_lock_open_24"/>
+
+    <item android:id="@+id/search"
+        android:title="Search"
+        android:icon="@drawable/ic_baseline_search_24"/>
+
+    <item android:id="@+id/settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_baseline_settings_24"/>
+
+</menu>

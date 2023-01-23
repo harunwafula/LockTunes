@@ -5,29 +5,38 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.astrofittechnologies.intsimbi.models.Song;
+import com.astrofittechnologies.intsimbi.models.SongList;
 import com.astrofittechnologies.intsimbi.services.MediaService;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +57,8 @@ public class HomeFragment extends Fragment {
     private String mParam2;
     private Boolean isPlaying = false;
     private FirebaseFirestore db;
+
+    private TextView currSongName;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -85,74 +96,94 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        MediaService mediaService = MediaService.getInstance(requireContext());
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.track_list_rv);
+
+        MediaService mediaService = MediaService.getInstance(requireContext());
+
+
         ImageView playPause = view.findViewById(R.id.play_toggle);
-        playPause.setOnClickListener(v -> {
-
-            if(mediaService.getAwake()){
-                mediaService.togglePause();
-            }else {
-                try {
-                    mediaService.streamSong("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/backtrapping.mp3?alt=media&token=65e86764-1203-4851-9907-5e4c2d67a9c1");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            isPlaying = !isPlaying;
-            if(isPlaying){
-                playPause.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
-
-            }else{
-                playPause.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
-
-            }
-
-        });
-
+        ImageView currSongDp = view.findViewById(R.id.song_dp_img);
+        BottomNavigationView nav = view.findViewById(R.id.bottom_navigation);
         db.collection("Songs").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
                 if(task.isSuccessful()){
-                    List<Song> songs = new ArrayList<>();
-                    List<String> songList = new ArrayList<>();
-
-                    for(QueryDocumentSnapshot document : task.getResult()){
-                        Song song = document.toObject(Song.class);
-                        songs.add(song);
-                        songList.add(song.getName());
+                    SongList songs = new SongList();
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                        Song song = documentSnapshot.toObject(Song.class);
+                        songs.addSong(song);
                     }
+                    Fragment content  = new LockedFragment();
+                    Bundle args = new Bundle();
+                    args.putSerializable(ARG_PARAM1, songs);
+                    content.setArguments(args);
+
+                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, content).commit();
 
 
-                    TrackListAdapter listAdapter = new TrackListAdapter(songList);
-                    listAdapter.setOnClickListener(new TrackListAdapter.OnClickListener() {
+                    nav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
                         @Override
-                        public void onSongPick(View view, int position) {
-                            playPause.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
-                            isPlaying = true;
-                            String url = "";
-                            if(position == 0){
-                                url = "https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/backtrapping.mp3?alt=media&token=65e86764-1203-4851-9907-5e4c2d67a9c1";
+                        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                            Fragment content;
 
-                            }else {
-                                url = "https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/afterchristmas.mp3?alt=media&token=a1d81366-2fb8-4197-a7a0-a49b0f494720";
+                            switch (item.getItemId()){
+                                case R.id.unlocked:
+                                    content = new UnlockedFragment();
+                                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, content).commit();
+
+                                    return true;
+                                case R.id.search:
+                                    content = new SearchFragment();
+                                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, content).commit();
+
+                                    return true;
+                                case R.id.settings:
+                                    content = new SettingsFragment();
+                                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, content).commit();
+
+                                    return true;
+                                default:
+                                    content = new LockedFragment();
+                                    Bundle args = new Bundle();
+                                    args.putSerializable(ARG_PARAM1, songs);
+                                    content.setArguments(args);
+                                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, content).commit();
+
+                                    return true;
                             }
 
-                            try {
-                                mediaService.streamSong(url);
 
 
-                            }catch (IOException exception) {
-                                Log.e("Play error","Error playing music");
-                            }
                         }
                     });
-                    recyclerView.setAdapter(listAdapter);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                    ConstraintLayout currController = view.findViewById(R.id.currently_playing_song);
+                    mediaService.setController(currController);
+
+                    playPause.setOnClickListener(v -> {
+
+                        if(mediaService.getAwake()){
+                            mediaService.togglePause();
+                        }else {
+                            try {
+                                mediaService.streamSong("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/backtrapping.mp3?alt=media&token=65e86764-1203-4851-9907-5e4c2d67a9c1");
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        //toggle the play pause icon
+                        if(  mediaService.getIsPlaying()){
+                            playPause.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
+
+                        }else{
+                            playPause.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
+
+                        }
+
+                    });
                 }else{
                     Toast.makeText(requireContext(), "Read issues ", Toast.LENGTH_LONG).show();
 
@@ -161,7 +192,14 @@ public class HomeFragment extends Fragment {
         });
 
 
+
+
+
         return view;
+    }
+
+    private void switchContent() {
+
     }
 
 

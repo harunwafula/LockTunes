@@ -8,14 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RadioGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link AuthFragment#newInstance} factory method to
+ * Use the {@link LoginFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AuthFragment extends Fragment {
+public class LoginFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +25,7 @@ public class AuthFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public AuthFragment() {
+    public LoginFragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +35,11 @@ public class AuthFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment AuthFragment.
+     * @return A new instance of fragment LoginFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static AuthFragment newInstance(String param1, String param2) {
-        AuthFragment fragment = new AuthFragment();
+    public static LoginFragment newInstance(String param1, String param2) {
+        LoginFragment fragment = new LoginFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,21 +60,11 @@ public class AuthFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        View view  = inflater.inflate(R.layout.fragment_login, container, false);
+        Button loginBtn = view.findViewById(R.id.login_btn);
+        loginBtn.setOnClickListener(v -> {
 
-        View view  = inflater.inflate(R.layout.fragment_auth, container, false);
-        RadioGroup authRg = view.findViewById(R.id.auth_rg);
-        getChildFragmentManager().beginTransaction().replace(R.id.content_frame, new LoginFragment()).commit();
-
-        authRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if (i == R.id.login_rb){
-                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, new LoginFragment()).commit();
-                }else{
-                    getChildFragmentManager().beginTransaction().replace(R.id.content_frame, new RegisterFragment()).commit();
-
-                }
-            }
+            getParentFragment().getParentFragmentManager().beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
         });
         return view;
     }
