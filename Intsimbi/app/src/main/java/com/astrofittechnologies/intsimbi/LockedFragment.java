@@ -97,11 +97,9 @@ public class LockedFragment extends Fragment {
                 public void onSongPick(View view, int position) {
 
                     Song song = songs.getSongs().get(position);
-                    mediaService.setCurrSong(song.getName(), song.getUrl());
-                    String url = song.getUrl();
 
                     try {
-                        mediaService.streamSong(url);
+                        mediaService.streamSong(song, position);
 
 
                     }catch (IOException exception) {

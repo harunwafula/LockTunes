@@ -103,6 +103,8 @@ public class HomeFragment extends Fragment {
 
 
         ImageView playPause = view.findViewById(R.id.play_toggle);
+        ImageView skipNext  = view.findViewById(R.id.next_btn);
+        ImageView skipPrevious = view.findViewById(R.id.back_btn);
         ImageView currSongDp = view.findViewById(R.id.song_dp_img);
         BottomNavigationView nav = view.findViewById(R.id.bottom_navigation);
         db.collection("Songs").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -167,7 +169,10 @@ public class HomeFragment extends Fragment {
                             mediaService.togglePause();
                         }else {
                             try {
-                                mediaService.streamSong("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/backtrapping.mp3?alt=media&token=65e86764-1203-4851-9907-5e4c2d67a9c1");
+                                if(!songs.getSongs().isEmpty()){
+                                    mediaService.streamSong(songs.getSongs().get(0), 0);
+
+                                }
 
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -184,10 +189,48 @@ public class HomeFragment extends Fragment {
                         }
 
                     });
+
+                    skipNext.setOnClickListener(v -> {
+                        try {
+                            int currIndex = mediaService.getCurrIndex();
+                            currIndex++;
+                            if(currIndex > (songs.getSongs().size() -1)){
+                                currIndex = 0;
+
+                            }
+                            Song nextSong = songs.getSongs().get(currIndex);
+                            mediaService.streamSong(nextSong, currIndex);
+
+//                        mediaService.streamSong("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/backtrapping.mp3?alt=media&token=65e86764-1203-4851-9907-5e4c2d67a9c1", 1);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                    skipPrevious.setOnClickListener(v -> {
+                        try {
+                            int currIndex = mediaService.getCurrIndex();
+                            currIndex--;
+                            if(currIndex < 0){
+                                currIndex = songs.getSongs().size() - 1;
+
+                            }
+                            Song nextSong = songs.getSongs().get(currIndex);
+                            mediaService.streamSong(nextSong, currIndex);
+
+//                        mediaService.streamSong("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/backtrapping.mp3?alt=media&token=65e86764-1203-4851-9907-5e4c2d67a9c1", 1);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }else{
                     Toast.makeText(requireContext(), "Read issues ", Toast.LENGTH_LONG).show();
 
                 }
+
+
             }
         });
 

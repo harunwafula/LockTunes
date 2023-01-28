@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.astrofittechnologies.intsimbi.R;
+import com.astrofittechnologies.intsimbi.models.Song;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.internal.Objects;
 
@@ -36,6 +37,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     private ImageView playPause;
     private ImageView currSongDp;
     private TextView currSongName;
+    private int currIndex;
 
     // Constructor
     // Here we will be creating private constructor
@@ -62,8 +64,10 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         return single_instance;
     }
 
-    public void streamSong(String url) throws IOException {
-
+    public void streamSong(Song song, int index) throws IOException {
+        String url = song.getUrl();
+        currIndex = index;
+        setCurrSong(song.getName(), song.getUrl());
         playPause.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24);
         Glide.with(context)
                 .load("https://firebasestorage.googleapis.com/v0/b/locktunes.appspot.com/o/Rectangle%202.png?alt=media&token=4ecfd37e-da85-48e4-b814-5d171f1ffd09")
@@ -104,6 +108,9 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
+    public int getCurrIndex(){
+        return currIndex;
+    }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
